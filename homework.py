@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PRAKTIKUM_API_URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
+PRAKTIKUM_URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 PRAKTIKUM_TOKEN = os.getenv("PRAKTIKUM_TOKEN")
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
@@ -33,7 +33,7 @@ def get_homework_statuses(current_timestamp):
     data = {
         "from_date": current_timestamp,
     }
-    homework_statuses = requests.get(PRAKTIKUM_API_URL, headers=headers,
+    homework_statuses = requests.get(PRAKTIKUM_URL, headers=headers,
                                      params=data)
     return homework_statuses.json()
 
