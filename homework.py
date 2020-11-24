@@ -31,7 +31,7 @@ def parse_homework_status(homework):
 def get_homework_statuses(current_timestamp):
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     data = {
-        "from_date": current_timestamp,
+        "from_date": 0 #current_timestamp,
     }
     homework_statuses = requests.get(PRAKTIKUM_URL, headers=headers,
                                      params=data)
