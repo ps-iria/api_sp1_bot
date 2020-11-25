@@ -13,7 +13,7 @@ PRAKTIKUM_TOKEN = os.getenv("PRAKTIKUM_TOKEN")
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-logging.basicConfig(filename='log.txt',
+logging.basicConfig(filename='app.log',
                     filemode='w',
                     level=logging.ERROR,
                     format='%(name)s - %(asctime)s - %(message)s'
