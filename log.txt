@@ -1,0 +1,4 @@
+root - 2020-11-25 14:21:55,805 - Бот столкнулся с ошибкой: testing
+root - 2020-11-25 14:21:55,805 - Бот столкнулся с ошибкой2: 'NoneType' object has no attribute 'get'
+root - 2020-11-25 14:22:00,805 - Бот столкнулся с ошибкой: testing
+root - 2020-11-25 14:22:00,805 - Бот столкнулся с ошибкой2: 'NoneType' object has no attribute 'get'
