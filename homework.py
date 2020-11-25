@@ -50,6 +50,8 @@ def get_homework_statuses(current_timestamp):
         logging.error(f'Бот столкнулся с ошибкой: {e}, '
                       f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
         return f'Бот столкнулся с ошибкой: {e}'
+    if 'error' in response.json():
+        logging.error(f'Бот столкнулся с ошибкой: {response.json()["error"]}')
     return response.json()
 
 
