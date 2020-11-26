@@ -13,12 +13,7 @@ PRAKTIKUM_TOKEN = os.getenv("PRAKTIKUM_TOKEN")
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-logging.basicConfig(filename='app.log',
-                    filemode='w',
-                    level=logging.ERROR,
-                    format='%(name)s - %(asctime)s - %(message)s'
-                    )
-verdicts = {
+VERDICTS = {
     'rejected': 'К сожалению в работе нашлись ошибки.',
     'approved': 'Ревьюеру всё понравилось, '
                 'можно приступать к следующему уроку.'
@@ -31,12 +26,11 @@ def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
-    if homework_status not in verdicts:
-        logging.error(f'Статус работы указан неверно, '
-                      f'status: {homework_status}.')
-        return 'Статус проверки определить не удалось.'
+    if homework_status not in VERDICTS:
+        raise KeyError(f'Статус работы указан неверно, '
+                       f'status: {homework_status}.')
     return (f'У вас проверили работу "{homework_name}"!'
-            f'\n\n{verdicts[homework_status]}')
+            f'\n\n{VERDICTS[homework_status]}')
 
 
 def get_homework_statuses(current_timestamp):
@@ -46,13 +40,14 @@ def get_homework_statuses(current_timestamp):
     }
     try:
         response = requests.get(PRAKTIKUM_URL, headers=headers, params=data)
-    except Exception as e:
-        logging.error(f'Бот столкнулся с ошибкой: {e}, '
-                      f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
-        return f'Бот столкнулся с ошибкой: {e}'
-    if 'error' in response.json():
-        logging.error(f'Бот столкнулся с ошибкой: {response.json()["error"]}')
-    return response.json()
+    except requests.exceptions.RequestException as e:
+        raise KeyError(f'Бот столкнулся с ошибкой: {e}, '
+                       f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
+    response_json = response.json()
+    if 'error' in response_json:
+        raise KeyError(f'Бот столкнулся с ошибкой: {response_json["error"]}, '
+                       f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
+    return response_json
 
 
 def send_message(message, bot_client):
@@ -78,4 +73,9 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename=__file__ + '.log',
+                        filemode='w',
+                        level=logging.ERROR,
+                        format='%(name)s - %(asctime)s - %(message)s'
+                        )
     main()
