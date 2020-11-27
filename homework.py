@@ -18,6 +18,10 @@ VERDICTS = {
     'approved': 'Ревьюеру всё понравилось, '
                 'можно приступать к следующему уроку.'
 }
+STATUS_SUCCESS = 'У вас проверили работу "{homework_name}"!''\n\n{verdict}'
+STATUS_ERROR = 'Статус работы указан неверно, status: {homework_status}.'
+BOT_RESPONSE_ERROR = '{error}, по запросу {url}, с параметрами: {data}'
+BOT_ERROR = 'Бот столкнулся с ошибкой: {error}'
 
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
@@ -25,12 +29,14 @@ bot = telegram.Bot(token=TELEGRAM_TOKEN)
 def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
-
     if homework_status not in VERDICTS:
-        raise KeyError(f'Статус работы указан неверно, '
-                       f'status: {homework_status}.')
-    return (f'У вас проверили работу "{homework_name}"!'
-            f'\n\n{VERDICTS[homework_status]}')
+        raise ValueError(STATUS_ERROR.format(
+            homework_status=homework_status
+        ))
+    return STATUS_SUCCESS.format(
+        homework_name=homework_name,
+        verdict=VERDICTS[homework_status]
+    )
 
 
 def get_homework_statuses(current_timestamp):
@@ -40,13 +46,17 @@ def get_homework_statuses(current_timestamp):
     }
     try:
         response = requests.get(PRAKTIKUM_URL, headers=headers, params=data)
-    except requests.exceptions.RequestException as e:
-        raise KeyError(f'Бот столкнулся с ошибкой: {e}, '
-                       f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
+    except requests.exceptions.RequestException as error:
+        raise ConnectionError(BOT_RESPONSE_ERROR.format(
+            error=error,
+            url=PRAKTIKUM_URL,
+            data=data)) from error
     response_json = response.json()
     if 'error' in response_json:
-        raise KeyError(f'Бот столкнулся с ошибкой: {response_json["error"]}, '
-                       f'по запросу {PRAKTIKUM_URL}, с параметрами: {data}')
+        raise ValueError(BOT_RESPONSE_ERROR.format(
+            error=response_json["error"],
+            url=PRAKTIKUM_URL,
+            data=data))
     return response_json
 
 
@@ -67,8 +77,8 @@ def main():
             current_timestamp = new_homework.get('current_date',
                                                  current_timestamp)
             time.sleep(600)  # 10 минут
-        except Exception as e:
-            logging.error(f'Бот столкнулся с ошибкой: {e}')
+        except Exception as error:
+            logging.error(BOT_ERROR.format(error=error))
             time.sleep(5)
 
 
